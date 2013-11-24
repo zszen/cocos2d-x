@@ -1,8 +1,12 @@
 package org.cocos2dx.demo;
 
 import android.app.NativeActivity;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class TranslucentDemo3x extends NativeActivity{
 
