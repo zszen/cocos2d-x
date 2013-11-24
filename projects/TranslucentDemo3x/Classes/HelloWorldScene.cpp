@@ -71,6 +71,8 @@ bool HelloWorld::init()
 
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
+    sprite->setScale(0.1f);
+    sprite->runAction(ScaleTo::create(3.0f,1.0f,1.0f));
     
     return true;
 }
