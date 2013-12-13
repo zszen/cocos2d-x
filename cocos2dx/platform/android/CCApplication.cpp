@@ -17,7 +17,9 @@ CCApplication * CCApplication::sm_pSharedApplication = 0;
 
 CCApplication::CCApplication()
 {
-    CCAssert(! sm_pSharedApplication, "");
+    //CCAssert(! sm_pSharedApplication, "");
+    if(sm_pSharedApplication)
+    	delete sm_pSharedApplication;
     sm_pSharedApplication = this;
 }
 

@@ -227,7 +227,7 @@ public class Cocos2dxHelper {
 	}
 
 	public static void terminateProcess() {
-		android.os.Process.killProcess(android.os.Process.myPid());
+		
 	}
 
 	private static void showDialog(final String pTitle, final String pMessage) {
