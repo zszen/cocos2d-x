@@ -35,11 +35,14 @@ THE SOFTWARE.
 
 #if CC_USE_PHYSICS
 #include "physics/CCPhysicsWorld.h"
+#include "base/CCEventCustom.h"
 #endif
 
-int g_physicsSceneCount = 0;
-
 NS_CC_BEGIN
+
+#if CC_USE_PHYSICS
+const std::string Scene::EVENT_UPDATE_PHYSICS = "__cc_updatePhysics";
+#endif
 
 Scene::Scene()
 #if CC_USE_PHYSICS
@@ -60,10 +63,7 @@ Scene::Scene()
 Scene::~Scene()
 {
 #if CC_USE_PHYSICS
-    if (_physicsWorld)
-    {
-        g_physicsSceneCount--;
-    }
+    _eventDispatcher->removeCustomEventListeners(EVENT_UPDATE_PHYSICS);
     CC_SAFE_DELETE(_physicsWorld);
 #endif
     Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
@@ -177,15 +177,6 @@ void Scene::addChild(Node* child, int zOrder, const std::string &name)
     addChildToPhysicsWorld(child);
 }
 
-void Scene::update(float delta)
-{
-    Node::update(delta);
-    if (nullptr != _physicsWorld && _physicsWorld->isAutoStep())
-    {
-        _physicsWorld->update(delta);
-    }
-}
-
 Scene* Scene::createWithPhysics()
 {
     Scene *ret = new (std::nothrow) Scene();
@@ -212,12 +203,38 @@ bool Scene::initWithPhysics()
         this->setContentSize(director->getWinSize());
         CC_BREAK_IF(! (_physicsWorld = PhysicsWorld::construct(*this)));
         
-        this->scheduleUpdate();
+        auto updatePhysicsListener = EventListenerCustom::create(EVENT_UPDATE_PHYSICS, [this](EventCustom* event){
+            if (_physicsWorld && _physicsWorld->isAutoStep())
+            {
+                _physicsWorld->update(*(float*)event->getUserData());
+            }
+        });
+        _eventDispatcher->addEventListenerWithFixedPriority(updatePhysicsListener, -1);
+        
         // success
-        g_physicsSceneCount += 1;
         ret = true;
     } while (0);
     return ret;
+}
+
+void Scene::updatePhysicsBodyTransform()
+{
+    auto director = Director::getInstance();
+
+    //director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+
+    const auto& transform = getNodeToParentTransform();
+
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, Camera::_visitingCamera->getViewProjectionMatrix());
+
+    for (auto node : getChildren())
+    {
+        node->updatePhysicsBodyTransform(transform, 0, _scaleX, _scaleY, _rotationZ_X);
+    }
+
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 void Scene::addChildToPhysicsWorld(Node* child)

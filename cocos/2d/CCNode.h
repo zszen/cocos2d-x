@@ -1528,6 +1528,8 @@ public:
      */
     void removeFromPhysicsWorld();
 
+    virtual void updatePhysicsBodyTransform(const Mat4& parentTransform, uint32_t parentFlags, float parentScaleX, float parentScaleY, float parentRotation);
+
 #endif
     
     // overrides
@@ -1597,9 +1599,10 @@ protected:
     bool isVisitableByVisitingCamera() const;
     
 #if CC_USE_PHYSICS
-    void updatePhysicsBodyTransform(Scene* layer);
-    virtual void updatePhysicsBodyPosition(Scene* layer);
-    virtual void updatePhysicsBodyRotation(Scene* layer);
+    
+    void updatePhysicsBodyTransform(Scene* scene);
+    virtual void updatePhysicsBodyPosition(Scene* scene);
+    virtual void updatePhysicsBodyRotation(Scene* scene);
     virtual void updatePhysicsBodyScale(Scene* scene);
 #endif // CC_USE_PHYSICS
     

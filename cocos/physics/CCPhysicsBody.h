@@ -339,8 +339,6 @@ protected:
     float _angularDamping;
     int _tag;
     
-    bool _positionResetTag;     /// To avoid reset the body position when body invoke Node::setPosition().
-    bool _rotationResetTag;     /// To avoid reset the body rotation when body invoke Node::setRotation().
     Vec2 _positionOffset;
     float _rotationOffset;
     

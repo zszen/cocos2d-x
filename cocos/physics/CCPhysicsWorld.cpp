@@ -905,6 +905,13 @@ void PhysicsWorld::step(float delta)
 
 void PhysicsWorld::update(float delta, bool userCall/* = false*/)
 {
+    if(delta < FLT_EPSILON)
+    {
+        return;
+    }
+    
+    _scene->updatePhysicsBodyTransform();
+
     while (_delayDirty)
     {
         // the updateJoints must run before the updateBodies.

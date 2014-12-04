@@ -69,8 +69,6 @@ PhysicsBody::PhysicsBody()
 , _linearDamping(0.0f)
 , _angularDamping(0.0f)
 , _tag(0)
-, _positionResetTag(false)
-, _rotationResetTag(false)
 , _rotationOffset(0)
 {
 }
@@ -791,8 +789,8 @@ void PhysicsBody::update(float delta)
             shape->update(delta);
         }
         
-        Node* parent = _node->getParent();
-        Node* scene = &_world->getScene();
+        auto parent = _node->getParent();
+        auto scene = &_world->getScene();
         
         Vec2 position = parent != scene ? parent->convertToNodeSpace(scene->convertToWorldSpace(getPosition())) : getPosition();
         float rotation = getRotation();
@@ -801,12 +799,8 @@ void PhysicsBody::update(float delta)
             rotation -= parent->getRotation();
         }
         
-        _positionResetTag = true;
-        _rotationResetTag = true;
         _node->setPosition(position);
         _node->setRotation(rotation);
-        _positionResetTag = false;
-        _rotationResetTag = false;
         
         // damping compute
         if (_isDamping && _dynamic && !isResting())
