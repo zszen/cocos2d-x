@@ -1528,7 +1528,7 @@ public:
      */
     void removeFromPhysicsWorld();
 
-    virtual void updatePhysicsBodyTransform(const Mat4& parentTransform, uint32_t parentFlags, float parentScaleX, float parentScaleY, float parentRotation);
+    virtual void updatePhysicsBodyTransform(Scene* scene, const Mat4& parentTransform, uint32_t parentFlags, float parentScaleX, float parentScaleY, float parentRotation);
 
 #endif
     

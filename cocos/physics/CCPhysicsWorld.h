@@ -44,6 +44,7 @@ class PhysicsContact;
 
 typedef Vec2 Vect;
 
+class Director;
 class Node;
 class Sprite;
 class Scene;
@@ -227,6 +228,7 @@ protected:
     friend class Node;
     friend class Sprite;
     friend class Scene;
+    friend class Director;
     friend class PhysicsBody;
     friend class PhysicsShape;
     friend class PhysicsJoint;

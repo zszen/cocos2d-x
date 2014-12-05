@@ -113,7 +113,7 @@ public:
     inline PhysicsWorld* getPhysicsWorld() { return _physicsWorld; }
     static Scene *createWithPhysics();
     
-    void updatePhysicsBodyTransform();
+    void updatePhysics();
 CC_CONSTRUCTOR_ACCESS:
     bool initWithPhysics();
     

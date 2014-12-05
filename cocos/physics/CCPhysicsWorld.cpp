@@ -614,12 +614,15 @@ void PhysicsWorld::removeBodyOrDelay(PhysicsBody* body)
 
 void PhysicsWorld::doAddJoint(PhysicsJoint *joint)
 {
-    if (joint == nullptr || joint->_info == nullptr)
+    if (!joint)
     {
         return;
     }
     
-    _info->addJoint(*joint->_info);
+    if (joint->initJoint() && joint->_info)
+    {
+        _info->addJoint(*joint->_info);
+    }
 }
 
 void PhysicsWorld::removeJoint(PhysicsJoint* joint, bool destroy)
@@ -750,8 +753,15 @@ void PhysicsWorld::addJoint(PhysicsJoint* joint)
     }
     
     addJointOrDelay(joint);
-    _joints.push_back(joint);
-    joint->_world = this;
+    if (joint->_info)
+    {
+        _joints.push_back(joint);
+        joint->_world = this;
+    }
+    else
+    {
+        delete joint;
+    }
 }
 
 void PhysicsWorld::removeAllJoints(bool destroy)
@@ -910,13 +920,14 @@ void PhysicsWorld::update(float delta, bool userCall/* = false*/)
         return;
     }
     
-    _scene->updatePhysicsBodyTransform();
+    _scene->updatePhysics();
 
     while (_delayDirty)
     {
         // the updateJoints must run before the updateBodies.
-        updateJoints();
         updateBodies();
+        updateJoints();
+        
         _delayDirty = !(_delayAddBodies.size() == 0 && _delayRemoveBodies.size() == 0 && _delayAddJoints.size() == 0 && _delayRemoveJoints.size() == 0);
     }
     

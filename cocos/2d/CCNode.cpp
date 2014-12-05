@@ -2014,6 +2014,14 @@ void Node::setPhysicsBody(PhysicsBody* body)
         return;
     }
     
+    if (_physicsBody)
+    {
+        _physicsBody->removeFromWorld();
+        _physicsBody->_node = nullptr;
+        _physicsBody->release();
+        _physicsBody = nullptr;
+    }
+    
     if (body)
     {
         if (body->getNode())
@@ -2031,27 +2039,11 @@ void Node::setPhysicsBody(PhysicsBody* body)
             CCLOG("Node warning: setPhysicsBody sets anchor point to Vec2::ANCHOR_MIDDLE.");
             setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         }
-    }
-    
-    if (_physicsBody)
-    {
-        auto world = _physicsBody->getWorld();
-        _physicsBody->removeFromWorld();
-        _physicsBody->_node = nullptr;
-        _physicsBody->release();
         
-        if (world && body)
-        {
-            world->addBody(body);
-        }
-    }
-    
-    _physicsBody = body;
-    _physicsScaleStartX = _scaleX;
-    _physicsScaleStartY = _scaleY;
-    
-    if (body)
-    {
+        _physicsBody = body;
+        _physicsScaleStartX = _scaleX;
+        _physicsScaleStartY = _scaleY;
+        
         auto scene = getScene();
         if (scene && scene->getPhysicsWorld())
         {
@@ -2067,41 +2059,26 @@ PhysicsBody* Node::getPhysicsBody() const
     return _physicsBody;
 }
 
-void Node::updatePhysicsBodyTransform(const Mat4& parentTransform, uint32_t parentFlags, float parentScaleX, float parentScaleY, float parentRotation)
+void Node::updatePhysicsBodyTransform(Scene* scene, const Mat4& parentTransform, uint32_t parentFlags, float parentScaleX, float parentScaleY, float parentRotation)
 {
-    //auto flags = processParentFlags(parentTransform, parentFlags);
-
-    uint32_t flags = parentFlags;
-    flags |= (_transformUpdated ? FLAGS_TRANSFORM_DIRTY : 0);
-    flags |= (_contentSizeDirty ? FLAGS_CONTENT_SIZE_DIRTY : 0);
-
-    auto modelViewTransform = _modelViewTransform;
-    if(flags & FLAGS_DIRTY_MASK)
-        modelViewTransform = this->transform(parentTransform);
-
-    auto director = Director::getInstance();
-    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    auto flags = processParentFlags(parentTransform, parentFlags);
 
     auto scaleX = parentScaleX * _scaleX;
     auto scaleY = parentScaleY * _scaleY;
-    auto rotation = parentRotation * _rotationZ_X;
+    auto rotation = parentRotation + _rotationZ_X;
 
     if (_physicsBody && (flags & FLAGS_DIRTY_MASK))
     {
+        _physicsBody->setPosition( scene->convertToNodeSpace(_parent->convertToWorldSpace(_position)) );
+        
         _physicsBody->setScale(scaleX / _physicsScaleStartX, scaleY / _physicsScaleStartY);
         _physicsBody->setRotation(rotation);
-
-        auto scene = getScene();
-        _physicsBody->setPosition( scene->convertToNodeSpace(_parent->convertToWorldSpace(_position)) );
     }
-
+    
     for (auto node : _children)
     {
-        node->updatePhysicsBodyTransform(modelViewTransform, flags, scaleX, scaleY, rotation);
+        node->updatePhysicsBodyTransform(scene, _modelViewTransform, flags, scaleX, scaleY, rotation);
     }
-
-    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 #endif //CC_USE_PHYSICS

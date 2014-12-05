@@ -60,6 +60,8 @@ THE SOFTWARE.
 #include "platform/CCApplication.h"
 //#include "platform/CCGLViewImpl.h"
 
+#include "physics/CCPhysicsWorld.h"
+
 /**
  Position of the FPS
  
@@ -271,12 +273,17 @@ void Director::drawScene()
     {
         setNextScene();
     }
-
-    pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     
 #if CC_USE_PHYSICS
-    _eventDispatcher->dispatchCustomEvent(Scene::EVENT_UPDATE_PHYSICS, &_deltaTime);
+    //_eventDispatcher->dispatchCustomEvent(Scene::EVENT_UPDATE_PHYSICS, &_deltaTime);
+    auto pw = _runningScene->getPhysicsWorld();
+    if (pw && pw->isAutoStep())
+    {
+        pw->update(_deltaTime, false);
+    }
 #endif
+
+    pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 
     if (_runningScene)
     {

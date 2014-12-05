@@ -70,6 +70,8 @@ public:
     /** Get the max force setting */
     float getMaxForce() const;
     
+    virtual bool initJoint();
+    
 protected:
     bool init(PhysicsBody* a, PhysicsBody* b);
     
@@ -89,6 +91,8 @@ protected:
     bool _destoryMark;
     int _tag;
     
+    bool _initDirty;
+    
     friend class PhysicsBody;
     friend class PhysicsWorld;
     friend class PhysicsDebugDraw;
@@ -102,12 +106,13 @@ class CC_DLL PhysicsJointFixed : public PhysicsJoint
 public:
     static PhysicsJointFixed* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr);
     
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointFixed() {}
     virtual ~PhysicsJointFixed() {}
+    
+    Vec2 _anchr;
 };
 
 /*
@@ -128,12 +133,16 @@ public:
     float getMax() const;
     void setMax(float max);
     
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2, float min, float max);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointLimit() {}
     virtual ~PhysicsJointLimit() {}
+    
+    Vec2 _anchr1;
+    Vec2 _anchr2;
+    float _min;
+    float _max;
 };
 
 /*
@@ -144,12 +153,13 @@ class CC_DLL PhysicsJointPin : public PhysicsJoint
 public:
     static PhysicsJointPin* construct(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr);
     
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointPin() {}
     virtual ~PhysicsJointPin() {}
+    
+    Vec2 _anchr;
 };
 
 /** Set the fixed distance with two bodies */
@@ -160,13 +170,14 @@ public:
     
     float getDistance() const;
     void setDistance(float distance);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointDistance() {}
     virtual ~PhysicsJointDistance() {}
+    
+    Vec2 _anchr1;
+    Vec2 _anchr2;
 };
 
 /** Connecting two physics bodies together with a spring. */
@@ -184,13 +195,16 @@ public:
     void setStiffness(float stiffness);
     float getDamping() const;
     void setDamping(float damping);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& anchr1, const Vec2& anchr2, float stiffness, float damping);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointSpring() {}
     virtual ~PhysicsJointSpring() {}
+    
+    Vec2 _anchr1;
+    Vec2 _anchr2;
+    float _stiffness;
+    float _damping;
 };
 
 /** Attach body a to a line, and attach body b to a dot */
@@ -205,13 +219,15 @@ public:
     void setGrooveB(const Vec2& grooveB);
     Vec2 getAnchr2() const;
     void setAnchr2(const Vec2& anchr2);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, const Vec2& grooveA, const Vec2& grooveB, const Vec2& anchr);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointGroove() {}
     virtual ~PhysicsJointGroove() {}
+    
+    Vec2 _grooveA;
+    Vec2 _grooveB;
+    Vec2 _anchr2;
 };
 
 /** Likes a spring joint, but works with rotary */
@@ -226,13 +242,14 @@ public:
     void setStiffness(float stiffness);
     float getDamping() const;
     void setDamping(float damping);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, float stiffness, float damping);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointRotarySpring() {}
     virtual ~PhysicsJointRotarySpring() {}
+    
+    float _stiffness;
+    float _damping;
 };
 
 /** Likes a limit joint, but works with rotary */
@@ -246,13 +263,14 @@ public:
     void setMin(float min);
     float getMax() const;
     void setMax(float max);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, float min, float max);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointRotaryLimit() {}
     virtual ~PhysicsJointRotaryLimit() {}
+    
+    float _min;
+    float _max;
 };
 
 /** Works like a socket wrench. */
@@ -267,13 +285,14 @@ public:
     void setPhase(float phase);
     float getRatchet() const;
     void setRatchet(float ratchet);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, float phase, float ratchet);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointRatchet() {}
     virtual ~PhysicsJointRatchet() {}
+    
+    float _phase;
+    float _ratchet;
 };
 
 /** Keeps the angular velocity ratio of a pair of bodies constant. */
@@ -287,12 +306,14 @@ public:
     float getRatio() const;
     void setRatio(float ratchet);
     
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, float phase, float ratio);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointGear() {}
     virtual ~PhysicsJointGear() {}
+    
+    float _phase;
+    float _ratio;
 };
 
 /** Keeps the relative angular velocity of a pair of bodies constant */
@@ -303,13 +324,13 @@ public:
     
     float getRate() const;
     void setRate(float rate);
-    
-protected:
-    bool init(PhysicsBody* a, PhysicsBody* b, float rate);
+    virtual bool initJoint() override;
     
 protected:
     PhysicsJointMotor() {}
     virtual ~PhysicsJointMotor() {}
+    
+    float _rate;
 };
 
 NS_CC_END
